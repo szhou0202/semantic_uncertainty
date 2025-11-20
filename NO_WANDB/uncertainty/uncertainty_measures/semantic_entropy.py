@@ -25,9 +25,9 @@ class BaseEntailment:
 
 class EntailmentDeberta(BaseEntailment):
     def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("microsoft/deberta-v2-xlarge-mnli")
+        self.tokenizer = AutoTokenizer.from_pretrained("microsoft/deberta-v3-base") # szhou: trying to use smaller deberta 
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            "microsoft/deberta-v2-xlarge-mnli").to(DEVICE)
+            "microsoft/deberta-v3-base").to(DEVICE)
 
     def check_implication(self, text1, text2, *args, **kwargs):
         inputs = self.tokenizer(text1, text2, return_tensors="pt").to(DEVICE)
