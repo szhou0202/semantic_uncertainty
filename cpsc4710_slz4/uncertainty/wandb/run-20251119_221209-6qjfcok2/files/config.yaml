@@ -1,0 +1,163 @@
+_wandb:
+    value:
+        cli_version: 0.23.0
+        e:
+            8o0c77qn81p5qksl5dfldx0fr94ncrg2:
+                args:
+                    - --eval_wandb_runid=g5zubouf
+                codePath: semantic_uncertainty/compute_uncertainty_measures.py
+                codePathLocal: semantic_uncertainty/compute_uncertainty_measures.py
+                cpu_count: 32
+                cpu_count_logical: 64
+                disk:
+                    /:
+                        total: "135004528640"
+                        used: "64405504"
+                email: sophia.zhou@yale.edu
+                executable: /home/cpsc4710_slz4/.conda/envs/semantic_uncertainty/bin/python
+                git:
+                    commit: 2a32133fe8232b954d14d0e06b601c034815c569
+                    remote: https://github.com/szhou0202/semantic_uncertainty.git
+                host: login1.bouchet.ycrc.yale.edu
+                memory:
+                    total: "270009061376"
+                os: Linux-4.18.0-553.52.1.el8_10.x86_64-x86_64-with-glibc2.28
+                program: /nfs/roberts/project/cpsc4710/cpsc4710_slz4/semantic_uncertainty/semantic_uncertainty/compute_uncertainty_measures.py
+                python: CPython 3.11.14
+                root: ./cpsc4710_slz4/uncertainty
+                slurm:
+                    hint: nomultithread
+                startedAt: "2025-11-20T03:12:09.099438Z"
+                writerId: 8o0c77qn81p5qksl5dfldx0fr94ncrg2
+        m: []
+        python_version: 3.11.14
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 51
+                - 53
+                - 71
+                - 95
+                - 100
+                - 105
+            "2":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 51
+                - 53
+                - 71
+                - 95
+                - 100
+                - 105
+            "3":
+                - 16
+            "4": 3.11.14
+            "5": 0.23.0
+            "6": 4.57.1
+            "12": 0.23.0
+            "13": linux-x86_64
+analyze_run:
+    value: true
+answerable_only:
+    value: false
+assign_new_wandb_id:
+    value: true
+brief_always:
+    value: false
+brief_prompt:
+    value: default
+compute_accuracy_at_all_temps:
+    value: true
+compute_context_entails_response:
+    value: false
+compute_p_ik:
+    value: true
+compute_p_ik_answerable:
+    value: false
+compute_p_true:
+    value: true
+compute_p_true_in_compute_stage:
+    value: false
+compute_predictive_entropy:
+    value: true
+compute_uncertainties:
+    value: true
+condition_on_question:
+    value: true
+dataset:
+    value: trivia_qa
+debug:
+    value: false
+enable_brief:
+    value: true
+entailment_cache_id:
+    value: null
+entailment_cache_only:
+    value: false
+entailment_model:
+    value: deberta
+entity:
+    value: sophia-zhou-yale-university
+eval_wandb_runid:
+    value: g5zubouf
+experiment_lot:
+    value: Unnamed Experiment
+get_training_set_generations:
+    value: true
+get_training_set_generations_most_likely_only:
+    value: true
+is_ood_eval:
+    value: false
+metric:
+    value: squad
+model_max_new_tokens:
+    value: 50
+model_name:
+    value: Mistral-7B-v0.1
+num_eval_samples:
+    value: 1e+19
+num_few_shot:
+    value: 5
+num_generations:
+    value: 10
+num_samples:
+    value: 400
+ood_train_dataset:
+    value: null
+p_true_hint:
+    value: false
+p_true_num_fewshot:
+    value: 12
+prompt_type:
+    value: default
+random_seed:
+    value: 10
+recompute_accuracy:
+    value: false
+restore_entity_eval:
+    value: sophia-zhou-yale-university
+restore_entity_train:
+    value: sophia-zhou-yale-university
+reuse_entailment_model:
+    value: false
+strict_entailment:
+    value: true
+temperature:
+    value: 1
+train_wandb_runid:
+    value: g5zubouf
+use_all_generations:
+    value: true
+use_context:
+    value: false
+use_mc_options:
+    value: true
+use_num_generations:
+    value: -1

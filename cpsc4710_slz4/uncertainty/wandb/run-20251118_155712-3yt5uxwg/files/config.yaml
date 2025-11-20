@@ -1,0 +1,217 @@
+_wandb:
+    value:
+        cli_version: 0.23.0
+        e:
+            8e9slf3ta47lg215xarnv6x66mhf00mw:
+                args:
+                    - --model_name=Mistral-7B-v0.1
+                    - --dataset=trivia_qa
+                codePath: semantic_uncertainty/generate_answers.py
+                codePathLocal: semantic_uncertainty/generate_answers.py
+                cpu_count: 48
+                cpu_count_logical: 48
+                cudaVersion: "12.8"
+                disk:
+                    /:
+                        total: "270396755968"
+                        used: "16011264"
+                email: sophia.zhou@yale.edu
+                executable: /home/cpsc4710_slz4/.conda/envs/semantic_uncertainty/bin/python
+                gpu: NVIDIA RTX 5000 Ada Generation
+                gpu_count: 3
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 12800
+                      memoryTotal: "34351349760"
+                      name: NVIDIA RTX 5000 Ada Generation
+                      uuid: GPU-a90fe277-9315-0a80-865d-308b7aa692d5
+                    - architecture: Ada
+                      cudaCores: 12800
+                      memoryTotal: "34351349760"
+                      name: NVIDIA RTX 5000 Ada Generation
+                      uuid: GPU-6cebedc1-2081-a7dd-0b1b-f72ce68310c1
+                    - architecture: Ada
+                      cudaCores: 12800
+                      memoryTotal: "34351349760"
+                      name: NVIDIA RTX 5000 Ada Generation
+                      uuid: GPU-ecd861c4-39f3-a6fa-9f64-f47f568fd21d
+                host: a1128u14n01.mghpcc.ycrc.yale.edu
+                memory:
+                    total: "540793516032"
+                os: Linux-4.18.0-553.52.1.el8_10.x86_64-x86_64-with-glibc2.28
+                program: /nfs/roberts/project/cpsc4710/cpsc4710_slz4/semantic_uncertainty/semantic_uncertainty/generate_answers.py
+                python: CPython 3.11.14
+                root: ./cpsc4710_slz4/uncertainty
+                slurm:
+                    cluster_name: bouchet
+                    conf: /var/lib/slurmconf/slurm.conf
+                    cpus_on_node: "3"
+                    cpus_per_task: "3"
+                    export_env: NONE
+                    get_user_env: "1"
+                    gpus_on_node: "3"
+                    gtids: "0"
+                    hint: nomultithread
+                    job_account: cpsc4710
+                    job_cpus_per_node: "3"
+                    job_end_time: "1763501158"
+                    job_gid: "1030166"
+                    job_gpus: 0,1,3
+                    job_id: "3053129"
+                    job_name: ood-codeserver
+                    job_nodelist: a1128u14n01
+                    job_num_nodes: "1"
+                    job_partition: education_gpu
+                    job_qos: interactive
+                    job_start_time: "1763493958"
+                    job_uid: "30166"
+                    job_user: cpsc4710_slz4
+                    jobid: "3053129"
+                    localid: "0"
+                    mem_per_cpu: "5120"
+                    nnodes: "1"
+                    nodeid: "0"
+                    nodelist: a1128u14n01
+                    oom_kill_step: "0"
+                    prio_process: "0"
+                    procid: "0"
+                    submit_dir: /var/www/ood/apps/sys/dashboard
+                    submit_host: ondemand1.bouchet.ycrc.yale.edu
+                    task_pid: "2442518"
+                    tasks_per_node: "1"
+                    topology_addr: hdrspine.a1128u27.a1128u14n01
+                    topology_addr_pattern: switch.switch.node
+                    tres_per_task: cpu=3
+                startedAt: "2025-11-18T20:57:12.371580Z"
+                writerId: 8e9slf3ta47lg215xarnv6x66mhf00mw
+        m: []
+        python_version: 3.11.14
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 51
+                - 53
+                - 71
+                - 95
+                - 100
+                - 105
+            "2":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 51
+                - 53
+                - 71
+                - 95
+                - 100
+                - 105
+            "3":
+                - 3
+                - 16
+            "4": 3.11.14
+            "5": 0.23.0
+            "6": 4.57.1
+            "12": 0.23.0
+            "13": linux-x86_64
+analyze_run:
+    value: true
+answerable_only:
+    value: false
+assign_new_wandb_id:
+    value: false
+brief_always:
+    value: false
+brief_prompt:
+    value: default
+compute_accuracy_at_all_temps:
+    value: true
+compute_context_entails_response:
+    value: false
+compute_p_ik:
+    value: true
+compute_p_ik_answerable:
+    value: false
+compute_p_true:
+    value: true
+compute_p_true_in_compute_stage:
+    value: false
+compute_predictive_entropy:
+    value: true
+compute_uncertainties:
+    value: true
+condition_on_question:
+    value: true
+dataset:
+    value: trivia_qa
+debug:
+    value: false
+enable_brief:
+    value: true
+entailment_cache_id:
+    value: null
+entailment_cache_only:
+    value: false
+entailment_model:
+    value: deberta
+entity:
+    value: null
+eval_wandb_runid:
+    value: null
+experiment_lot:
+    value: Unnamed Experiment
+get_training_set_generations:
+    value: true
+get_training_set_generations_most_likely_only:
+    value: true
+metric:
+    value: squad
+model_max_new_tokens:
+    value: 50
+model_name:
+    value: Mistral-7B-v0.1
+num_eval_samples:
+    value: 1e+19
+num_few_shot:
+    value: 5
+num_generations:
+    value: 10
+num_samples:
+    value: 400
+ood_train_dataset:
+    value: null
+p_true_hint:
+    value: false
+p_true_num_fewshot:
+    value: 12
+prompt_type:
+    value: default
+random_seed:
+    value: 10
+recompute_accuracy:
+    value: false
+restore_entity_eval:
+    value: null
+restore_entity_train:
+    value: null
+reuse_entailment_model:
+    value: false
+strict_entailment:
+    value: true
+temperature:
+    value: 1
+train_wandb_runid:
+    value: null
+use_all_generations:
+    value: true
+use_context:
+    value: false
+use_mc_options:
+    value: true
+use_num_generations:
+    value: -1

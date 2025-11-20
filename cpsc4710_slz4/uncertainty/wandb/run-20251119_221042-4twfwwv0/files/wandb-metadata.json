@@ -1,0 +1,35 @@
+{
+  "os": "Linux-4.18.0-553.52.1.el8_10.x86_64-x86_64-with-glibc2.28",
+  "python": "CPython 3.11.14",
+  "startedAt": "2025-11-20T03:10:42.379814Z",
+  "args": [
+    "--eval_wandb_runid=g5zubouf",
+    "--assign_new_wandb_id"
+  ],
+  "program": "/nfs/roberts/project/cpsc4710/cpsc4710_slz4/semantic_uncertainty/semantic_uncertainty/compute_uncertainty_measures.py",
+  "codePath": "semantic_uncertainty/compute_uncertainty_measures.py",
+  "codePathLocal": "semantic_uncertainty/compute_uncertainty_measures.py",
+  "git": {
+    "remote": "https://github.com/szhou0202/semantic_uncertainty.git",
+    "commit": "2a32133fe8232b954d14d0e06b601c034815c569"
+  },
+  "email": "sophia.zhou@yale.edu",
+  "root": "./cpsc4710_slz4/uncertainty",
+  "host": "login1.bouchet.ycrc.yale.edu",
+  "executable": "/home/cpsc4710_slz4/.conda/envs/semantic_uncertainty/bin/python",
+  "cpu_count": 32,
+  "cpu_count_logical": 64,
+  "disk": {
+    "/": {
+      "total": "135004528640",
+      "used": "64389120"
+    }
+  },
+  "memory": {
+    "total": "270009061376"
+  },
+  "slurm": {
+    "hint": "nomultithread"
+  },
+  "writerId": "8hezro3bz5lgbbyxtto596kdaapz72sq"
+}
