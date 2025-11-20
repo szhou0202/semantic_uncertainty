@@ -18,34 +18,7 @@ utils.setup_logger()
 
 result_dict = {}
 
-UNC_MEAS = 'uncertainty_measures.pkl'
-
-
-def init_wandb(wandb_runid, assign_new_wandb_id, experiment_lot, entity):
-    """Initialize wandb session."""
-    user = os.environ['USER']
-    slurm_jobid = os.getenv('SLURM_JOB_ID')
-    scratch_dir = os.getenv('SCRATCH_DIR', '.')
-    kwargs = dict(
-        entity=entity,
-        project='semantic_uncertainty',
-        dir=f'{scratch_dir}/{user}/uncertainty',
-        notes=f'slurm_id: {slurm_jobid}, experiment_lot: {experiment_lot}',
-    )
-    if not assign_new_wandb_id:
-        # Restore wandb session.
-        wandb.init(
-            id=wandb_runid,
-            resume=True,
-            **kwargs)
-        wandb.restore(UNC_MEAS)
-    else:
-        api = wandb.Api()
-        wandb.init(**kwargs)
-
-        old_run = api.run(f'{entity}/semantic_uncertainty/{wandb_runid}')
-        old_run.file(UNC_MEAS).download(
-            replace=True, exist_ok=False, root=wandb.run.dir)
+UNC_MEAS = 'uncertainty_measures_EEEEEE.pkl'
 
 
 def analyze_run(
@@ -76,16 +49,9 @@ def analyze_run(
             functools.partial(accuracy_at_quantile, quantile=answer_fraction),
             compatible_bootstrap]
 
-    if wandb.run is None:
-        init_wandb(
-            wandb_runid, assign_new_wandb_id=assign_new_wandb_id,
-            experiment_lot=experiment_lot, entity=entity)
-
-    elif wandb.run.id != wandb_runid:
-        raise ValueError
-
     # Load the results dictionary from a pickle file.
-    with open(f'{wandb.run.dir}/{UNC_MEAS}', 'rb') as file:
+    curr_dir = "cpsc4710_slz4/uncertainty/wandb/run-20251119_144835-g5zubouf/files"
+    with open(f'{curr_dir}/{UNC_MEAS}', 'rb') as file:
         results_old = pickle.load(file)
 
     result_dict = {'performance': {}, 'uncertainty': {}}
@@ -151,7 +117,7 @@ def analyze_run(
                 result_dict['uncertainty'][name][fname]['bootstrap'] = bs_function(
                     function, rng)(*fargs[fname])
 
-    wandb.log(result_dict)
+    # wandb.log(result_dict)
     logging.info(
         'Analysis for wandb_runid `%s` finished. Full results dict: %s',
         wandb_runid, result_dict

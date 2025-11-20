@@ -286,7 +286,7 @@ def main(args):
         result_dict['uncertainty_measures']['p_false'] = [1 - p for p in p_trues]
         result_dict['uncertainty_measures']['p_false_fixed'] = [1 - np.exp(p) for p in p_trues]
 
-    utils.save(result_dict, 'uncertainty_measures.pkl')
+    utils.save(result_dict, restore('uncertainty_measures_EEEEEE.pkl').name)
 
     if args.compute_predictive_entropy:
         entailment_model.save_prediction_cache()
