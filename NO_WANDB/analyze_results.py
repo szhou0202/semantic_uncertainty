@@ -122,6 +122,8 @@ def analyze_run(
         'Analysis for wandb_runid `%s` finished. Full results dict: %s',
         wandb_runid, result_dict
     )
+    with open(f"{curr_dir}/results_dict.json", 'w') as f:
+        json.dump(result_dict, f)
 
 
 if __name__ == '__main__':
