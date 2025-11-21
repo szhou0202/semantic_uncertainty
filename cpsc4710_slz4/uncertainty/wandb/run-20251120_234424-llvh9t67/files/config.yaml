@@ -1,0 +1,209 @@
+_wandb:
+    value:
+        cli_version: 0.23.0
+        e:
+            8j7fhp86ys2jzk64vve3vswg34a7xx6h:
+                args:
+                    - --model_name=Llama-2-7b-chat
+                    - --dataset=paraphrase
+                codePath: NO_WANDB_local_deberta!!!!/generate_answers_paraphrase.py
+                codePathLocal: NO_WANDB_local_deberta!!!!/generate_answers_paraphrase.py
+                cpu_count: 48
+                cpu_count_logical: 48
+                cudaVersion: "12.8"
+                disk:
+                    /:
+                        total: "270396747776"
+                        used: "16060416"
+                email: sophia.zhou@yale.edu
+                executable: /home/cpsc4710_slz4/.conda/envs/semantic_uncertainty/bin/python
+                git:
+                    commit: 455c6b51a4a50d6894eb6475a87006afbd4926fc
+                    remote: https://github.com/szhou0202/semantic_uncertainty.git
+                gpu: NVIDIA RTX 5000 Ada Generation
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 12800
+                      memoryTotal: "34351349760"
+                      name: NVIDIA RTX 5000 Ada Generation
+                      uuid: GPU-54e98975-d3ec-0aac-f6fe-109e71de8a40
+                host: a1128u44n01.mghpcc.ycrc.yale.edu
+                memory:
+                    total: "540793499648"
+                os: Linux-4.18.0-553.52.1.el8_10.x86_64-x86_64-with-glibc2.28
+                program: /nfs/roberts/project/cpsc4710/cpsc4710_slz4/semantic_uncertainty/NO_WANDB_local_deberta!!!!/generate_answers_paraphrase.py
+                python: CPython 3.11.14
+                root: ./cpsc4710_slz4/uncertainty
+                slurm:
+                    cluster_name: bouchet
+                    conf: /var/lib/slurmconf/slurm.conf
+                    cpus_on_node: "2"
+                    cpus_per_task: "2"
+                    export_env: NONE
+                    get_user_env: "1"
+                    gpus_on_node: "1"
+                    gtids: "0"
+                    hint: nomultithread
+                    job_account: cpsc4710
+                    job_cpus_per_node: "2"
+                    job_end_time: "1763708172"
+                    job_gid: "1030166"
+                    job_gpus: "3"
+                    job_id: "3114707"
+                    job_name: ood-codeserver
+                    job_nodelist: a1128u44n01
+                    job_num_nodes: "1"
+                    job_partition: education_gpu
+                    job_qos: interactive
+                    job_start_time: "1763697372"
+                    job_uid: "30166"
+                    job_user: cpsc4710_slz4
+                    jobid: "3114707"
+                    localid: "0"
+                    mem_per_cpu: "5120"
+                    nnodes: "1"
+                    nodeid: "0"
+                    nodelist: a1128u44n01
+                    oom_kill_step: "0"
+                    prio_process: "0"
+                    procid: "0"
+                    submit_dir: /var/www/ood/apps/sys/dashboard
+                    submit_host: ondemand1.bouchet.ycrc.yale.edu
+                    task_pid: "4149778"
+                    tasks_per_node: "1"
+                    topology_addr: hdrspine.a1128u27.a1128u44n01
+                    topology_addr_pattern: switch.switch.node
+                    tres_per_task: cpu=2
+                startedAt: "2025-11-21T04:44:24.498159Z"
+                writerId: 8j7fhp86ys2jzk64vve3vswg34a7xx6h
+        m: []
+        python_version: 3.11.14
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 51
+                - 53
+                - 71
+                - 95
+                - 100
+                - 105
+            "2":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 51
+                - 53
+                - 71
+                - 95
+                - 100
+                - 105
+            "3":
+                - 16
+            "4": 3.11.14
+            "5": 0.23.0
+            "6": 4.57.1
+            "12": 0.23.0
+            "13": linux-x86_64
+analyze_run:
+    value: true
+answerable_only:
+    value: false
+assign_new_wandb_id:
+    value: false
+brief_always:
+    value: false
+brief_prompt:
+    value: default
+compute_accuracy_at_all_temps:
+    value: true
+compute_context_entails_response:
+    value: false
+compute_p_ik:
+    value: true
+compute_p_ik_answerable:
+    value: false
+compute_p_true:
+    value: true
+compute_p_true_in_compute_stage:
+    value: false
+compute_predictive_entropy:
+    value: true
+compute_uncertainties:
+    value: true
+condition_on_question:
+    value: true
+dataset:
+    value: paraphrase
+debug:
+    value: false
+enable_brief:
+    value: true
+entailment_cache_id:
+    value: null
+entailment_cache_only:
+    value: false
+entailment_model:
+    value: deberta
+entity:
+    value: null
+eval_wandb_runid:
+    value: null
+experiment_lot:
+    value: Unnamed Experiment
+get_training_set_generations:
+    value: true
+get_training_set_generations_most_likely_only:
+    value: true
+metric:
+    value: squad
+model_max_new_tokens:
+    value: 50
+model_name:
+    value: Llama-2-7b-chat
+num_eval_samples:
+    value: 1e+19
+num_few_shot:
+    value: 5
+num_generations:
+    value: 10
+num_samples:
+    value: 400
+ood_train_dataset:
+    value: null
+p_true_hint:
+    value: false
+p_true_num_fewshot:
+    value: 20
+prompt_type:
+    value: default
+random_seed:
+    value: 10
+recompute_accuracy:
+    value: false
+restore_entity_eval:
+    value: null
+restore_entity_train:
+    value: null
+reuse_entailment_model:
+    value: false
+strict_entailment:
+    value: true
+temperature:
+    value: 1
+train_wandb_runid:
+    value: null
+use_all_generations:
+    value: true
+use_context:
+    value: false
+use_mc_options:
+    value: true
+use_num_generations:
+    value: -1

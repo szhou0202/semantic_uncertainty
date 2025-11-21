@@ -1,0 +1,85 @@
+{
+  "os": "Linux-4.18.0-553.52.1.el8_10.x86_64-x86_64-with-glibc2.28",
+  "python": "CPython 3.11.14",
+  "startedAt": "2025-11-21T05:24:55.740630Z",
+  "args": [
+    "--model_name=Llama-2-7b-chat",
+    "--dataset=paraphrase"
+  ],
+  "program": "/nfs/roberts/project/cpsc4710/cpsc4710_slz4/semantic_uncertainty/NO_WANDB_local_deberta!!!!/generate_answers_paraphrase.py",
+  "codePath": "NO_WANDB_local_deberta!!!!/generate_answers_paraphrase.py",
+  "codePathLocal": "NO_WANDB_local_deberta!!!!/generate_answers_paraphrase.py",
+  "git": {
+    "remote": "https://github.com/szhou0202/semantic_uncertainty.git",
+    "commit": "455c6b51a4a50d6894eb6475a87006afbd4926fc"
+  },
+  "email": "sophia.zhou@yale.edu",
+  "root": "./cpsc4710_slz4/uncertainty",
+  "host": "a1128u44n01.mghpcc.ycrc.yale.edu",
+  "executable": "/home/cpsc4710_slz4/.conda/envs/semantic_uncertainty/bin/python",
+  "cpu_count": 48,
+  "cpu_count_logical": 48,
+  "gpu": "NVIDIA RTX 5000 Ada Generation",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "270396747776",
+      "used": "16060416"
+    }
+  },
+  "memory": {
+    "total": "540793499648"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA RTX 5000 Ada Generation",
+      "memoryTotal": "34351349760",
+      "cudaCores": 12800,
+      "architecture": "Ada",
+      "uuid": "GPU-54e98975-d3ec-0aac-f6fe-109e71de8a40"
+    }
+  ],
+  "cudaVersion": "12.8",
+  "slurm": {
+    "cluster_name": "bouchet",
+    "conf": "/var/lib/slurmconf/slurm.conf",
+    "cpus_on_node": "2",
+    "cpus_per_task": "2",
+    "export_env": "NONE",
+    "get_user_env": "1",
+    "gpus_on_node": "1",
+    "gtids": "0",
+    "hint": "nomultithread",
+    "job_account": "cpsc4710",
+    "job_cpus_per_node": "2",
+    "job_end_time": "1763708172",
+    "job_gid": "1030166",
+    "job_gpus": "3",
+    "job_id": "3114707",
+    "job_name": "ood-codeserver",
+    "job_nodelist": "a1128u44n01",
+    "job_num_nodes": "1",
+    "job_partition": "education_gpu",
+    "job_qos": "interactive",
+    "job_start_time": "1763697372",
+    "job_uid": "30166",
+    "job_user": "cpsc4710_slz4",
+    "jobid": "3114707",
+    "localid": "0",
+    "mem_per_cpu": "5120",
+    "nnodes": "1",
+    "nodeid": "0",
+    "nodelist": "a1128u44n01",
+    "oom_kill_step": "0",
+    "prio_process": "0",
+    "procid": "0",
+    "submit_dir": "/var/www/ood/apps/sys/dashboard",
+    "submit_host": "ondemand1.bouchet.ycrc.yale.edu",
+    "task_pid": "4149778",
+    "tasks_per_node": "1",
+    "topology_addr": "hdrspine.a1128u27.a1128u44n01",
+    "topology_addr_pattern": "switch.switch.node",
+    "tres_per_task": "cpu=2"
+  },
+  "writerId": "z2ilgmaj7ecoda7bx3qsvd4enw9e8j2e"
+}

@@ -26,35 +26,43 @@ class BaseEntailment:
 
 class EntailmentDeberta(BaseEntailment):
     def __init__(self):
-        self.client = InferenceClient(model='microsoft/deberta-v2-xlarge-mnli')
-        # self.tokenizer = AutoTokenizer.from_pretrained("microsoft/deberta-large-mnli")#("microsoft/deberta-v2-xlarge-mnli") # szhou: trying to use smaller deberta 
+        # self.client = InferenceClient(model='microsoft/deberta-v2-xlarge-mnli')
+        # self.tokenizer = AutoTokenizer.from_pretrained("microsoft/deberta-v2-xlarge-mnli") # szhou: trying to use smaller deberta 
         # self.model = AutoModelForSequenceClassification.from_pretrained(
-        #     "microsoft/deberta-large-mnli").to(DEVICE)
+        #     "microsoft/deberta-v2-xlarge-mnli").to(DEVICE)
+        self.tokenizer = AutoTokenizer.from_pretrained("./deberta") # szhou: this works but need to make this into a well-formed path independent of where this is run 
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            "./deberta").to(DEVICE)
 
     def check_implication(self, text1, text2, *args, **kwargs):
-        completion = self.client.text_classification(f"{text1}[SEP]{text2}")
+        # completion = self.client.text_classification(f"{text1}[SEP]{text2}")
 
-        match completion[0].label:
-            case "NEUTRAL":
-                return 1
-            case "ENTAILMENT":
-                return 2
-            case _:
-                return 0
-        # inputs = self.tokenizer(text1, text2, return_tensors="pt").to(DEVICE)
-        # # The model checks if text1 -> text2, i.e. if text2 follows from text1.
-        # # check_implication('The weather is good', 'The weather is good and I like you') --> 1
-        # # check_implication('The weather is good and I like you', 'The weather is good') --> 2
-        # outputs = self.model(**inputs)
-        # logits = outputs.logits
-        # # Deberta-mnli returns `neutral` and `entailment` classes at indices 1 and 2.
-        # largest_index = torch.argmax(F.softmax(logits, dim=1))  # pylint: disable=no-member
-        # prediction = largest_index.cpu().item()
-        # if os.environ.get('DEBERTA_FULL_LOG', False):
-        #     logging.info('Deberta Input: %s -> %s', text1, text2)
-        #     logging.info('Deberta Prediction: %s', prediction)
+        # match completion[0].label:
+        #     case "NEUTRAL":
+        #         return 1
+        #     case "ENTAILMENT":
+        #         return 2
+        #     case _:
+        #         return 0
+        inputs = self.tokenizer(text1, text2, return_tensors="pt").to(DEVICE)
+        # The model checks if text1 -> text2, i.e. if text2 follows from text1.
+        # check_implication('The weather is good', 'The weather is good and I like you') --> 1
+        # check_implication('The weather is good and I like you', 'The weather is good') --> 2
+        outputs = self.model(**inputs)
+        logits = outputs.logits
+        # Deberta-mnli returns `neutral` and `entailment` classes at indices 1 and 2.
+        largest_index = torch.argmax(F.softmax(logits, dim=1))  # pylint: disable=no-member
+        prediction = largest_index.cpu().item()
+        if os.environ.get('DEBERTA_FULL_LOG', False):
+            logging.info('Deberta Input: %s -> %s', text1, text2)
+            logging.info('Deberta Prediction: %s', prediction)
 
-        # return prediction
+        return prediction
+
+    def save(self, save_dir: str="./"):
+        # save both into the same folder
+        self.tokenizer.save_pretrained(save_dir)
+        self.model.save_pretrained(save_dir)
 
 
 class EntailmentLLM(BaseEntailment):
