@@ -89,9 +89,13 @@ def main(args):
     else:
         is_ood_eval = False  # pylint: disable=invalid-name
         if args.compute_p_ik or args.compute_p_ik_answerable:
-            train_generations_pickle = restore('train_generations.pkl')
-            with open(train_generations_pickle.name, 'rb') as infile:
-                train_generations = pickle.load(infile)
+            if args.using_paraphrases:
+                with open("data/train_multiquestion_generations.pkl", "rb") as generations_file:
+                    train_generations = pickle.load(generations_file)
+            else:
+                train_generations_pickle = restore('train_generations.pkl')
+                with open(train_generations_pickle.name, 'rb') as infile:
+                    train_generations = pickle.load(infile)
 
     wandb.config.update({"is_ood_eval": is_ood_eval}, allow_val_change=True)
 
@@ -161,10 +165,14 @@ def main(args):
         logging.warning('Recompute accuracy enabled. This does not apply to precomputed p_true!')
         metric = utils.get_metric(args.metric)
 
-    # Restore outputs from `generate_answrs.py` run.
-    result_dict_pickle = restore('uncertainty_measures.pkl')
-    with open(result_dict_pickle.name, "rb") as infile:
-        result_dict = pickle.load(infile)
+    # Restore outputs from `generate_answers.py` run.
+    if args.using_paraphrases:
+        with open("data/uncertainty_measures_paraphrases.pkl", "rb") as uncertainty_measures_file:
+            result_dict = pickle.load(uncertainty_measures_file)
+    else:
+        result_dict_pickle = restore('uncertainty_measures.pkl')
+        with open(result_dict_pickle.name, "rb") as infile:
+            result_dict = pickle.load(infile)
     result_dict['semantic_ids'] = []
 
     validation_generations_pickle = restore('validation_generations.pkl')

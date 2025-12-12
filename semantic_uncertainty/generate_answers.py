@@ -4,6 +4,7 @@ import os
 import logging
 import random
 from tqdm import tqdm
+import pickle
 
 import numpy as np
 import torch
@@ -62,6 +63,14 @@ def main(args):
     if not isinstance(train_dataset, list):
         logging.info('Train dataset: %s', train_dataset)
 
+    if args.using_paraphrases:
+        # Get paraphrased questions
+        with open("data/generated_paraphrases/train_paraphrases.pkl", "rb") as file:
+            generated_paraphrases = pickle.load(file)
+        
+        # Get ids w/ paraphrases, only use examples in paraphrased questions
+        paraphrase_ids = set(generated_paraphrases.keys())
+
     # Get indices of answerable and unanswerable questions and construct prompt.
     answerable_indices, unanswerable_indices = utils.split_dataset(train_dataset)
 
@@ -71,7 +80,19 @@ def main(args):
         del val_unanswerable
         validation_dataset = [validation_dataset[i] for i in val_answerable]
 
-    prompt_indices = random.sample(answerable_indices, args.num_few_shot)
+    # Select few-shot prompt examples
+    if args.using_paraphrases:
+        # Only sample examples for prompt from indices without paraphrases (that will not be used)
+        available_indices = []
+        for idx in answerable_indices:
+            if train_dataset[idx]['id'] not in paraphrase_ids:
+                available_indices.append(idx)
+        
+        prompt_indices = random.sample(available_indices, args.num_few_shot)
+
+    else:
+        prompt_indices = random.sample(answerable_indices, args.num_few_shot)
+
     experiment_details['prompt_indices'] = prompt_indices
     remaining_answerable = list(set(answerable_indices) - set(prompt_indices))
 
@@ -85,6 +106,14 @@ def main(args):
     experiment_details['BRIEF'] = BRIEF
     logging.info('Prompt is: %s', prompt)
 
+    if args.using_paraphrases:
+        # Subset train to examples with generated paraphrases in train dataset
+        new_train_indices = []
+        for i, ex in enumerate(train_dataset):
+            if ex['id'] in paraphrase_ids:
+                new_train_indices.append(i)
+        # train_dataset = new_train_ds
+
     # Initialize model.
     model = utils.init_model(args)
 
@@ -93,17 +122,31 @@ def main(args):
         logging.info(80*'#')
         logging.info('Constructing few-shot prompt for p_true.')
 
-        p_true_indices = random.sample(answerable_indices, args.p_true_num_fewshot)
-        remaining_answerable = list(set(remaining_answerable) - set(p_true_indices))
-        p_true_few_shot_prompt, p_true_responses, len_p_true = p_true_utils.construct_few_shot_prompt(
-            model=model, dataset=train_dataset, indices=p_true_indices,
-            prompt=prompt, brief=BRIEF,
-            brief_always=args.brief_always and args.enable_brief,
-            make_prompt=make_prompt, num_generations=args.num_generations,
-            metric=metric)
+        if args.using_paraphrases:
+            # Sample p_true few shot examples from unused (no paraphrase) training set examples
+            # p_true_indices = random.sample(list(range(len(validation_dataset))), args.p_true_num_fewshot)
+            p_true_indices = random.sample(available_indices, args.p_true_num_fewshot)
+            p_true_few_shot_prompt, p_true_responses, len_p_true = p_true_utils.construct_few_shot_prompt(
+                model=model, dataset=train_dataset, indices=p_true_indices,
+                prompt=prompt, brief=BRIEF,
+                brief_always=args.brief_always and args.enable_brief,
+                make_prompt=make_prompt, num_generations=args.num_generations,
+                metric=metric) # model=model, dataset=validation_dataset, indices=p_true_indices,
+        else:
+            p_true_indices = random.sample(answerable_indices, args.p_true_num_fewshot)
+            remaining_answerable = list(set(remaining_answerable) - set(p_true_indices))
+        
+            p_true_few_shot_prompt, p_true_responses, len_p_true = p_true_utils.construct_few_shot_prompt(
+                model=model, dataset=train_dataset, indices=p_true_indices,
+                prompt=prompt, brief=BRIEF,
+                brief_always=args.brief_always and args.enable_brief,
+                make_prompt=make_prompt, num_generations=args.num_generations,
+                metric=metric)
+        print("P_true prompt:", p_true_few_shot_prompt)
         wandb.config.update(
             {'p_true_num_fewshot': len_p_true}, allow_val_change=True)
         wandb.log(dict(len_p_true=len_p_true))
+        experiment_details['p_true_few_shot_dataset'] = 'train' if args.using_paraphrases else 'val'
         experiment_details['p_true_indices'] = p_true_indices
         experiment_details['p_true_responses'] = p_true_responses
         experiment_details['p_true_few_shot_prompt'] = p_true_few_shot_prompt
@@ -117,6 +160,9 @@ def main(args):
     logging.info('Generating answers: ')
     logging.info(80 * '=')
     for dataset_split in ['train', 'validation']:
+        if args.using_paraphrases and dataset_split == "validation":
+            continue
+
         logging.info(80 * 'x')
         logging.info('Starting with dataset_split %s.', dataset_split)
         logging.info(80 * 'x')
@@ -124,33 +170,59 @@ def main(args):
         # This will store all input data and model predictions.
         accuracies, generations, results_dict, p_trues = [], {}, {}, []
 
+        if args.using_paraphrases:
+            original_accuracies, paraphrase_accuracies = [], []
+
         if dataset_split == 'train':
             if not args.get_training_set_generations:
                 logging.info('Skip training data.')
                 continue
             dataset = train_dataset
             possible_indices = list(set(remaining_answerable) | set(unanswerable_indices))
+            
+            if args.using_paraphrases:
+                possible_indices = new_train_indices #list(range(len(train_dataset)))
 
         else:
             dataset = validation_dataset
             possible_indices = range(0, len(dataset))
 
         # Evaluate over random subset of the datasets.
-        indices = random.sample(possible_indices, min(args.num_samples, len(dataset)))
-        experiment_details[dataset_split] = {'indices': indices}
 
+        # indices = random.sample(possible_indices, min(args.num_samples, len(dataset)))
+        indices = possible_indices
+
+        # if args.using_paraphrases:
+        #     indices = possible_indices
+        experiment_details[dataset_split] = {'indices': indices}
+        print("Length of dataset:", len(dataset), " length of indices:", len(indices))
         if args.num_samples > len(dataset):
             logging.warning('Not enough samples in dataset. Using all %d samples.', len(dataset))
+
+        with open('data/train_multiquestion_generations.pkl', 'rb') as file:
+            prev_generated = pickle.load(file)
+        used_ids = list(prev_generated.keys())
 
         it = 0
         for index in tqdm(indices):
             if (it + 1 % 10) == 0:
                 gc.collect()
                 torch.cuda.empty_cache()
+
             it += 1
 
             # Grab example at index.
             example = dataset[index]
+            if example['id'] in used_ids:
+                continue
+
+            if (it % 100) == 1:
+                print(f"Saving at iteration {it}.")
+                with open('data/paraphrase_answers.pkl', 'wb') as gen_file:
+                    pickle.dump(generations, gen_file)
+                with open('data/uncertainty_paraphrase_answers.pkl', 'wb') as uncertain_file:
+                    pickle.dump(results_dict, uncertain_file)
+
             question, context = example["question"], example['context']
             generations[example['id']] = {'question': question, 'context': context}
             correct_answer = example['answers']['text']
@@ -161,85 +233,132 @@ def main(args):
 
             logging.info('Current input: '.ljust(15) + current_input)
 
-            full_responses = []
+            # full_responses = []
+            original_res = []
+            paraphrase_res = []
 
             # We sample one low temperature answer on which we will compute the
             # accuracy and args.num_generation high temperature answers which will
             # be used to estimate the entropy variants.
 
-            if dataset_split == 'train' and args.get_training_set_generations_most_likely_only:
+            if not args.using_paraphrases and dataset_split == 'train' and args.get_training_set_generations_most_likely_only:
                 num_generations = 1
             else:
                 num_generations = args.num_generations + 1
 
-            for i in range(num_generations):
+            generations[example["id"]]["reference"] = utils.get_reference(example)
 
-                # Temperature for first generation is always `0.1`.
-                temperature = 0.1 if i == 0 else args.temperature
+            questions = [question]
+            if args.using_paraphrases:
+                questions.extend(generated_paraphrases[example["id"]])
+                generations[example["id"]].update({"question_and_paraphrases": questions})
+                generations[example["id"]]["most_likely_answer"] = []
+            
+            for q_idx, q in enumerate(questions):
 
-                predicted_answer, token_log_likelihoods, embedding = model.predict(
-                    local_prompt, temperature)
-                embedding = embedding.cpu() if embedding is not None else None
+                current_input = make_prompt(context, q, None, BRIEF, args.brief_always and args.enable_brief)
+                local_prompt = prompt + current_input
 
-                # Only compute accuracy if question is answerable.
-                compute_acc = args.compute_accuracy_at_all_temps or (i == 0)
-                if correct_answer and compute_acc:
-                    acc = metric(predicted_answer, example, model)
-                else:
-                    acc = 0.0  # pylint: disable=invalid-name
+                for i in range(num_generations):
 
-                if i == 0:
-                    logging.info('Iteration ' + str(it) + ':  ' + 80*'#')
-                    if args.use_context:
-                        logging.info('context: '.ljust(15) + str(context))
-                    logging.info('question: '.ljust(15) + question)
-                    logging.info('low-t prediction: '.ljust(15) + predicted_answer)
-                    logging.info('correct answer: '.ljust(15) + str(correct_answer))
-                    logging.info('accuracy: '.ljust(15) + str(acc))
+                    # Temperature for first generation is always `0.1`.
+                    temperature = 0.1 if i == 0 else args.temperature
 
-                    accuracies.append(acc)
-                    most_likely_answer_dict = {
-                        'response': predicted_answer,
-                        'token_log_likelihoods': token_log_likelihoods,
-                        'embedding': embedding,
-                        'accuracy': acc}
-                    generations[example['id']].update({
-                        'most_likely_answer': most_likely_answer_dict,
-                        'reference': utils.get_reference(example)})
+                    predicted_answer, token_log_likelihoods, embedding = model.predict(
+                        local_prompt, temperature)
+                    embedding = embedding.cpu() if embedding is not None else None
 
-                else:
-                    logging.info('high-t prediction '.ljust(15) + str(i) + ' : ' + predicted_answer)
-                    # Aggregate predictions over num_generations.
-                    full_responses.append(
-                        (predicted_answer, token_log_likelihoods, embedding, acc))
+                    # Only compute accuracy if question is answerable.
+                    compute_acc = args.compute_accuracy_at_all_temps or (i == 0)
+                    if correct_answer and compute_acc:
+                        acc = metric(predicted_answer, example, model)
+                    else:
+                        acc = 0.0  # pylint: disable=invalid-name
+
+                    if i == 0:
+                        logging.info('Iteration ' + str(it) + ':  ' + 80*'#')
+                        if args.use_context:
+                            logging.info('context: '.ljust(15) + str(context))
+                        logging.info('question: '.ljust(15) + q)
+                        logging.info('low-t prediction: '.ljust(15) + predicted_answer)
+                        logging.info('correct answer: '.ljust(15) + str(correct_answer))
+                        logging.info('accuracy: '.ljust(15) + str(acc))
+
+                        accuracies.append(acc)
+                        if args.using_paraphrases:
+                            if q_idx == 0:
+                                original_accuracies.append(acc)
+                            else:
+                                paraphrase_accuracies.append(acc)
+
+                        most_likely_answer_dict = {
+                            'response': predicted_answer,
+                            'token_log_likelihoods': token_log_likelihoods,
+                            'embedding': embedding,
+                            'accuracy': acc}
+
+                        if args.using_paraphrases:
+                            generations[example['id']]['most_likely_answer'].append(most_likely_answer_dict)
+                        else:
+                            generations[example['id']]['most_likely_answer'] = most_likely_answer_dict
+                        
+                        # generations[example['id']].update({
+                        #     'most_likely_answer': most_likely_answer_dict,
+                        #     'reference': utils.get_reference(example)})
+
+                    else:
+                        logging.info('high-t prediction '.ljust(15) + str(i) + ' : ' + predicted_answer)
+                        # Aggregate predictions over num_generations.
+                        if q_idx == 0: # Original question
+                            original_res.append((predicted_answer, token_log_likelihoods, embedding, acc))
+                        else:
+                            paraphrase_res.append((predicted_answer, token_log_likelihoods, embedding, acc))
 
             # Append all predictions for this example to `generations`.
-            generations[example['id']]['responses'] = full_responses
+            generations[example['id']]['responses'] = original_res
+            generations[example['id']]['paraphrase_responses'] = paraphrase_res
 
-            if args.compute_p_true and dataset_split == 'validation':
+            if args.compute_p_true and (dataset_split == 'validation' or args.using_paraphrases):
                 # Already compute p_true here. Avoid cost of generations in compute_uncertainty script.
+                if args.using_paraphrases:
+                    most_likely_answer_dict = generations[example['id']]['most_likely_answer'][0] # prediction w/ original question
+                
                 p_true = p_true_utils.calculate_p_true(
                     model, question, most_likely_answer_dict['response'],
-                    [r[0] for r in full_responses], p_true_few_shot_prompt,
+                    [r[0] for r in original_res], p_true_few_shot_prompt,
                     hint=args.p_true_hint)
                 p_trues.append(p_true)
                 logging.info('p_true: %s', p_true)
 
         # Save generations for that split.
-        utils.save(generations, f'{dataset_split}_generations.pkl')
+        if args.using_paraphrases:
+            # with open(f"data/{dataset_split}_multiquestion_generations.pkl", "wb") as file:
+            with open('data/paraphrase_answers.pkl', 'wb') as file:
+                pickle.dump(generations, file)
+        else:
+            utils.save(generations, f'{dataset_split}_generations.pkl')
 
         # Log overall accuracy.
         accuracy = np.mean(accuracies)
         print(f"Overall {dataset_split} split accuracy: {accuracy}")
+        if args.using_paraphrases:
+            print(f"Overall {dataset_split} split original question accuracy: {accuracy}")
+            print(f"Overall {dataset_split} split paraphrase questions accuracy: {accuracy}")
+        
         wandb.log({f"{dataset_split}_accuracy": accuracy})
 
-        if dataset_split == 'validation':
+        if dataset_split == 'validation' or args.using_paraphrases:
             if args.compute_p_true:
                 results_dict['uncertainty_measures'] = {
                     'p_false':  [1 - p for p in p_trues],
                     'p_false_fixed':  [1 - np.exp(p) for p in p_trues],
                 }
-            utils.save(results_dict, 'uncertainty_measures.pkl')
+            if args.using_paraphrases:
+                # with open("data/uncertainty_measures_paraphrases.pkl", "wb") as file:
+                with open('data/uncertainty_paraphrase_answers.pkl', 'wb') as file:
+                    pickle.dump(results_dict, file)
+            else:
+                utils.save(results_dict, 'uncertainty_measures.pkl')
 
     utils.save(experiment_details, 'experiment_details.pkl')
     logging.info('Run complete.')
