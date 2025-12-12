@@ -90,7 +90,7 @@ def main(args):
                 
                 count += 1
                 if count == 1 or (count+1) % 100 == 0:
-                    with open(f'data/generated_paraphrases/SQuAD_paraphrases_{args.paraphrase_start}_{args.paraphrase_start+count}.pkl', 'wb') as f:
+                    with open(f'data/generated_paraphrases/SQuAD_paraphrases.pkl', 'wb') as f:
                         pickle.dump(generations, f)
                 
     # Save generations for that split.
