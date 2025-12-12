@@ -107,6 +107,9 @@ def get_parser(stages=['generate', 'compute']):
             action=argparse.BooleanOptionalAction,
             help='Exclude unanswerable questions.')
 
+        # Added argument for start index of paraphrase generation
+        parser.add_argument("--paraphrase_start", default=0, type=int)
+
     if 'compute' in stages:
         parser.add_argument('--recompute_accuracy',
                             default=False, action=argparse.BooleanOptionalAction)
@@ -145,6 +148,9 @@ def get_parser(stages=['generate', 'compute']):
         parser.add_argument('--reuse_entailment_model',
                             default=False, action=argparse.BooleanOptionalAction,
                             help='Use entailment model as p_true model.')
+        parser.add_argument('--using_paraphrases',
+                            default=False, action=argparse.BooleanOptionalAction,
+                            help='Use examples with generated paraphrases.')
     return parser
 
 

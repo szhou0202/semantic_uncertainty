@@ -27,6 +27,7 @@ def main(args):
 
     # Load data
     train_data, val_data = load_ds(args.dataset, seed=1)
+    print(f"Train data: {train_data.shape} ; Val data: {val_data.shape}")
 
     def check_implication(phrase1, phrase2):
         inf_result = entailment_client.text_classification(f"{phrase1}. {phrase2}", model=entailment_model)
@@ -41,7 +42,10 @@ def main(args):
 
         generations = {}
         count = 0
-        for example in dataset:
+
+        for i in range(args.paraphrase_start, len(dataset)):
+            example = dataset[i]
+
             question, answer = example["question"], example['answers']['text'][0]
             print(count, "Original Q:", question)
             print("Answer:", answer)
@@ -72,11 +76,11 @@ def main(args):
             
             count += 1
             if count == 1 or count % 100 == 0:
-                with open(f'data/generated_paraphrases/{dataset_split}_paraphrases.pkl', 'wb') as f:
+                with open(f'data/generated_paraphrases/{dataset_split}_paraphrases_{args.paraphrase_start}_{args.paraphrase_start+count}.pkl', 'wb') as f:
                     pickle.dump(generations, f)
         
         # Save generations for that split.
-        with open(f'data/generated_paraphrases/{dataset_split}_paraphrases.pkl', 'wb') as f:
+        with open(f'data/generated_paraphrases/{dataset_split}_paraphrases_{args.paraphrase_start}_{args.paraphrase_start+count}.pkl', 'wb') as f:
             pickle.dump(generations, f)
 
 
