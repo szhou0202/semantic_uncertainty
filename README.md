@@ -38,6 +38,10 @@ Finally, to calculate semantic entropy and paraphrase-augmented semantic entropy
 python semantic_uncertainty/compute_uncertainty_paraphrases.py
 ```
 
+## szhou branch
+
+Please note, you may `git checkout szhou` to run further experiments there.
+
 This should generate "combined_uncertainty_measures_paraphrases.pkl" in the data folder, which will contain a dictionary with several uncertainty measures, including P(false), semantic entropy, and paraphrase-augmented semantic entropy.
 
 We visualize semantic entropy results in "paraphrase_eval.ipynb", in the "notebooks" folder. Some results at the bottom are for our ablation experiment, which used slightly altered scripts (available in this repository) and rely on different data files.
