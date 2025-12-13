@@ -1,4 +1,4 @@
-# Detecting Hallucinations in Large Language Models Using Paraphrase-Augmented Semantic Entropy
+# An investigation into question-based methods for uncertainty detection in LLMs
 
 This repository builds on the original, now deprecated codebase for semantic uncertainty at [https://github.com/lorenzkuhn/semantic_uncertainty](https://github.com/lorenzkuhn/semantic_uncertainty).
 
