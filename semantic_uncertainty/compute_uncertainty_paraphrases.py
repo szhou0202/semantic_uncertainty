@@ -31,8 +31,7 @@ EXP_DETAILS = 'experiment_details.pkl'
 
 def main(args):
 
-    # with open("data/train_multiquestion_generations.pkl", "rb") as generations_file:
-    with open("data/combined_paraphrase_answers.pkl", "rb") as generations_file:
+    with open("data/paraphrase_answers.pkl", "rb") as generations_file:
         generations = pickle.load(generations_file)
 
     # Load entailment model.
@@ -58,17 +57,15 @@ def main(args):
             'Llama-2-7b-chat', stop_sequences='default',
             max_new_tokens=200)
 
-
     # Restore outputs from `generate_answers.py` run.
-    # with open("data/uncertainty_measures_paraphrases.pkl", "rb") as uncertainty_measures_file:
-    #     result_dict = pickle.load(uncertainty_measures_file)
-    #     print("Length of result dict loaded from combined_paraphrase_answers:", len(result_dict))
-    result_dict = {}
+    with open("data/uncertainty_paraphrase_answers.pkl", "rb") as uncertainty_measures_file:
+        result_dict = pickle.load(uncertainty_measures_file)
+    # result_dict = {}
 
     result_dict['example_ids'] = []
 
     # result_dict['semantic_ids'] = []
-    result_dict['original_semantic_ids'] = []
+    result_dict['original_semantic_ids'] = [] # Only for original question
     result_dict['all_semantic_ids'] = []
 
     entropies = defaultdict(list)
@@ -204,54 +201,12 @@ def main(args):
     if args.compute_predictive_entropy:
         result_dict['uncertainty_measures'].update(entropies)
 
-    # if args.compute_p_ik or args.compute_p_ik_answerable:
-    #     # Assemble training data for embedding classification.
-    #     train_is_true, train_embeddings, train_answerable = [], [], []
-    #     for tid in train_generations:
-    #         most_likely_answer = train_generations[tid]['most_likely_answer']
-    #         train_embeddings.append(most_likely_answer['embedding'])
-    #         train_is_true.append(most_likely_answer['accuracy'])
-    #         train_answerable.append(is_answerable(train_generations[tid]))
-    #     train_is_false = [0.0 if is_t else 1.0 for is_t in train_is_true]
-    #     train_unanswerable = [0.0 if is_t else 1.0 for is_t in train_answerable]
-    #     logging.info('Unanswerable prop on p_ik training: %f', np.mean(train_unanswerable))
-
-    # if args.compute_p_ik:
-    #     logging.info('Starting training p_ik on train embeddings.')
-    #     # Train classifier of correct/incorrect from embeddings.
-    #     p_ik_predictions = get_p_ik(
-    #         train_embeddings=train_embeddings, is_false=train_is_false,
-    #         eval_embeddings=validation_embeddings, eval_is_false=validation_is_false)
-    #     result_dict['uncertainty_measures']['p_ik'] = p_ik_predictions
-    #     logging.info('Finished training p_ik on train embeddings.')
-
-    # if args.compute_p_ik_answerable:
-    #     # Train classifier of answerable/unanswerable.
-    #     p_ik_predictions = get_p_ik(
-    #         train_embeddings=train_embeddings, is_false=train_unanswerable,
-    #         eval_embeddings=validation_embeddings, eval_is_false=validation_unanswerable)
-    #     result_dict['uncertainty_measures']['p_ik_unanswerable'] = p_ik_predictions
-
     if args.compute_p_true_in_compute_stage:
         result_dict['uncertainty_measures']['p_false'] = [1 - p for p in p_trues]
         result_dict['uncertainty_measures']['p_false_fixed'] = [1 - np.exp(p) for p in p_trues]
 
-    # with open("data/semantic_uncertainty_paraphrases.pkl", "wb") as results_file:
     with open("data/combined_uncertainty_measures_paraphrases.pkl", "wb") as results_file:
         pickle.dump(result_dict, results_file)
-
-    # utils.save(result_dict, 'uncertainty_measures.pkl')
-
-    # if args.compute_predictive_entropy:
-    #     entailment_model.save_prediction_cache()
-
-    # if args.analyze_run:
-    #     # Follow up with computation of aggregate performance metrics.
-    #     logging.info(50 * '#X')
-    #     logging.info('STARTING `analyze_run`!')
-    #     analyze_run(wandb.run.id)
-    #     logging.info(50 * '#X')
-    #     logging.info('FINISHED `analyze_run`!')
 
 
 if __name__ == '__main__':
