@@ -181,6 +181,24 @@ def construct_fewshot_prompt_from_indices(dataset, example_indices, brief, brief
 
     return prompt
 
+def construct_fewshot_prompt_from_indices_squad(qas, contexts, example_indices, brief, brief_always, make_prompt):
+    """Given a dataset and indices, construct a fewshot prompt."""
+    if not brief_always:
+        prompt = brief
+    else:
+        prompt = ''
+
+    for example_index in example_indices:
+
+        example = qas[example_index]
+        context = contexts[example["context_idx"]]
+        question = example["question"]
+        answer = example["answers"]["text"][0]
+
+        prompt = prompt + make_prompt(context, question, answer, brief, brief_always)
+
+    return prompt
+
 
 def split_dataset(dataset):
     """Get indices of answerable and unanswerable questions."""

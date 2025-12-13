@@ -27,6 +27,13 @@ def main(args):
     # Load data
     with open("data/combined_paraphrase_answers.pkl", "rb") as file:
         data = pickle.load(file)
+    
+    resuming = True
+    if resuming:
+        with open("data/generated_paraphrases/all_paraphrases.pkl", 'rb') as last_file:
+            generations = pickle.load(last_file)
+    else:
+        generations = {}
 
     def check_implication(phrase1, phrase2):
         inf_result = entailment_client.text_classification(f"{phrase1}. {phrase2}", model=entailment_model)
@@ -36,12 +43,12 @@ def main(args):
     num_generations = 3
 
     # dataset = train_data if dataset_split == 'train' else val_data
-
-    generations = {}
     count = 0
 
     for ex_id, example in data.items():
-
+        if ex_id in generations:
+            continue
+        
         question, answer = example["question"], example['reference']['answers']['text'][0]
         print(count, "Original Q:", question)
         print("Answer:", answer)
