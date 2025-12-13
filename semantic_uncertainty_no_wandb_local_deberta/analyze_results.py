@@ -51,7 +51,7 @@ def analyze_run(
             compatible_bootstrap]
 
     # Load the results dictionary from a pickle file.
-    curr_run = "run-20251212_214555-vuslog9a"
+    curr_run = "SEnergy_no_paraphrase"
     curr_dir = f"cpsc4710_slz4/uncertainty/wandb/{curr_run}/files"
     with open(f'{curr_dir}/{UNC_MEAS}', 'rb') as file:
         results_old = pickle.load(file)

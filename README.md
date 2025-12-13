@@ -1,4 +1,12 @@
-# Detecting Hallucinations in Large Language Models Using Semantic Entropy
+# CPSC 4710 Instructions
+
+Please follow the below instructions for environment setup. You do not need to set up wandb or OpenAI. 
+
+Once you have set up the environment, please download deberta-v2-xlarge-mnli from Hugging face and store the files in a directory called "deberta" at the same level as this README file. 
+
+Finally, `cd semantic_uncertainty_no_wandb_local_deberta`, and do `python compute_uncertainty_measures.py`, then `python analyze_results.py --wandb_runids [INSERT ANYTHING]`. Go to notebooks/example_evaluation.ipynb, change the filepath in `restore_file()`, and run the notebook to display results from that run! 
+
+## Detecting Hallucinations in Large Language Models Using Semantic Entropy
 
 This repository contains the code necessary to reproduce the short-phrase and sentence-length experiments of the Nature submission 'Detecting Hallucinations in Large Language Models Using Semantic Entropy'.
 

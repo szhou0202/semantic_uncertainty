@@ -36,7 +36,7 @@ def main(args):
     # with open('/home/cpsc4710_slz4/project_cpsc4710/cpsc4710_slz4/semantic_uncertainty/data/generated_paraphrases/four_qs_indices.pkl', 'rb') as f:
     #     four_qs_indices = set(pickle.load(f))
     
-    curr_run = "run-20251212_214555-vuslog9a"
+    curr_run = "SEnergy_no_paraphrase"
 
     user = os.environ['USER']
     scratch_dir = os.getenv('SCRATCH_DIR', '.')
