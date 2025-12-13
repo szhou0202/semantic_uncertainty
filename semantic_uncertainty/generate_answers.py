@@ -199,9 +199,10 @@ def main(args):
         if args.num_samples > len(dataset):
             logging.warning('Not enough samples in dataset. Using all %d samples.', len(dataset))
 
-        with open('data/train_multiquestion_generations.pkl', 'rb') as file:
-            prev_generated = pickle.load(file)
-        used_ids = list(prev_generated.keys())
+        # with open('data/train_generations.pkl', 'rb') as file:
+            # prev_generated = pickle.load(file)
+        # used_ids = list(prev_generated.keys())
+        used_ids = []
 
         it = 0
         for index in tqdm(indices):
