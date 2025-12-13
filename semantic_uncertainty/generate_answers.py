@@ -31,7 +31,7 @@ def main(args):
             args.answerable_only = True
 
     experiment_details = {'args': args}
-    random.seed(args.random_seed)
+    random.seed(args.random_seed) # szhou: ahh here is where we can do seeding
     user = os.environ['USER']
     slurm_jobid = os.getenv('SLURM_JOB_ID', None)
     scratch_dir = os.getenv('SCRATCH_DIR', '.')

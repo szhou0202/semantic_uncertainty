@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 import numpy as np
 import torch
-import wandb
+import wandb # szhou: to remove
 
 from uncertainty.data.data_utils import load_ds
 from uncertainty.utils import utils
@@ -16,6 +16,8 @@ from compute_uncertainty_measures import main as main_compute
 
 
 utils.setup_logger()
+
+RETURN_LOGITS = True # szhou: make this into an arg?
 
 
 def main(args):
@@ -136,7 +138,7 @@ def main(args):
             dataset = validation_dataset
             possible_indices = range(0, len(dataset))
 
-        # Evaluate over random subset of the datasets.
+        # Evaluate over random subset of the datasets. szhou: NEED TO CHANGE TO COMPARE NON PARAPHRASE WITH PARAPHRASE
         indices = random.sample(possible_indices, min(args.num_samples, len(dataset)))
         experiment_details[dataset_split] = {'indices': indices}
 
@@ -180,10 +182,16 @@ def main(args):
                     logging.info('Current input: '.ljust(15) + current_input)
 
                     # Temperature for first generation is always `0.1`.
-                    temperature = 0.1 if i == 0 else args.temperature
-
-                    predicted_answer, token_log_likelihoods, embedding = model.predict(
-                        local_prompt, temperature)
+                    temperature = 0.1 if i == 0 else args.temperature # szhou: is this doing what i want it to do? i'm generating low t answers for each j in questions when i = 0
+                    
+                    chosen_logits = None
+                    if RETURN_LOGITS:
+                        predicted_answer, token_log_likelihoods, embedding, chosen_logits = model.predict(
+                            local_prompt, temperature, return_logits=RETURN_LOGITS)
+                    else:
+                        predicted_answer, token_log_likelihoods, embedding = model.predict(
+                            local_prompt, temperature, return_logits=RETURN_LOGITS) # szhou: return logits = false in this case
+                    logging.info(f"Logit: {chosen_logits[0]}, {len(chosen_logits)}")
                     embedding = embedding.cpu() if embedding is not None else None
 
                     # Only compute accuracy if question is answerable.
@@ -207,7 +215,8 @@ def main(args):
                             'response': predicted_answer,
                             'token_log_likelihoods': token_log_likelihoods,
                             'embedding': embedding,
-                            'accuracy': acc}
+                            'accuracy': acc,
+                            'logits': chosen_logits}
                         generations[example['id']].update({
                             'most_likely_answer': most_likely_answer_dict,
                             'reference': utils.get_reference(example)})
@@ -216,7 +225,7 @@ def main(args):
                         logging.info('high-t prediction '.ljust(15) + str(i) + ' : ' + predicted_answer)
                         # Aggregate predictions over num_generations.
                         full_responses.append(
-                            (predicted_answer, token_log_likelihoods, embedding, acc))
+                            (predicted_answer, token_log_likelihoods, chosen_logits, embedding, acc))
 
             # Append all predictions for this example to `generations`.
             generations[example['id']]['responses'] = full_responses
@@ -252,7 +261,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-
+    # szhou: need to run this with --dataset paraphrase
     parser = utils.get_parser()
     args, unknown = parser.parse_known_args()
     logging.info('Starting new run with args: %s', args)

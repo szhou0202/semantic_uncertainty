@@ -24,7 +24,7 @@ def get_parser(stages=['generate', 'compute']):
         "--debug", action=argparse.BooleanOptionalAction, default=False,
         help="Keep default wandb clean.")
     parser.add_argument('--entity', type=str, default=entity)
-    parser.add_argument('--random_seed', type=int, default=10)
+    parser.add_argument('--random_seed', type=int, default=10) # szhou: there is always the same random seed, so the same sample is sampled,, but how does that affect our downstream computations?
     parser.add_argument(
         "--metric", type=str, default="squad",
         choices=['squad', 'llm', 'llm_gpt-3.5', 'llm_gpt-4'],

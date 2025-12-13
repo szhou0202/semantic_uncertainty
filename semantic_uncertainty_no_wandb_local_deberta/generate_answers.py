@@ -17,6 +17,7 @@ from compute_uncertainty_measures import main as main_compute
 
 utils.setup_logger()
 
+RETURN_LOGITS = True
 
 def main(args):
 
@@ -151,7 +152,8 @@ def main(args):
 
             # Grab example at index.
             example = dataset[index]
-            question, context = example["question"], example['context']
+            # question, context = example["question"], example['context']
+            question, context = example["questions"][0], example['context'] # szhou: for generating from paraphrase
             generations[example['id']] = {'question': question, 'context': context}
             correct_answer = example['answers']['text']
 
@@ -177,9 +179,19 @@ def main(args):
                 # Temperature for first generation is always `0.1`.
                 temperature = 0.1 if i == 0 else args.temperature
 
-                predicted_answer, token_log_likelihoods, embedding = model.predict(
-                    local_prompt, temperature)
+                chosen_logits = None
+                if RETURN_LOGITS:
+                    predicted_answer, token_log_likelihoods, embedding, chosen_logits = model.predict(
+                        local_prompt, temperature, return_logits=RETURN_LOGITS)
+                else:
+                    predicted_answer, token_log_likelihoods, embedding = model.predict(
+                        local_prompt, temperature, return_logits=RETURN_LOGITS) # szhou: return logits = false in this case
+                logging.info(f"Logit: {chosen_logits[0]}, {len(chosen_logits)}")
                 embedding = embedding.cpu() if embedding is not None else None
+
+                # predicted_answer, token_log_likelihoods, embedding = model.predict(
+                #     local_prompt, temperature)
+                # embedding = embedding.cpu() if embedding is not None else None
 
                 # Only compute accuracy if question is answerable.
                 compute_acc = args.compute_accuracy_at_all_temps or (i == 0)
@@ -202,6 +214,7 @@ def main(args):
                         'response': predicted_answer,
                         'token_log_likelihoods': token_log_likelihoods,
                         'embedding': embedding,
+                        "logits": chosen_logits,
                         'accuracy': acc}
                     generations[example['id']].update({
                         'most_likely_answer': most_likely_answer_dict,
@@ -211,7 +224,7 @@ def main(args):
                     logging.info('high-t prediction '.ljust(15) + str(i) + ' : ' + predicted_answer)
                     # Aggregate predictions over num_generations.
                     full_responses.append(
-                        (predicted_answer, token_log_likelihoods, embedding, acc))
+                        (predicted_answer, token_log_likelihoods, chosen_logits, embedding, acc))
 
             # Append all predictions for this example to `generations`.
             generations[example['id']]['responses'] = full_responses

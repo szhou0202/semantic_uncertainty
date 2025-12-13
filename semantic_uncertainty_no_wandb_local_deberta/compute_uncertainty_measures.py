@@ -20,6 +20,7 @@ from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT4
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT35
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT4Turbo
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentLlama
+from uncertainty.uncertainty_measures.semantic_energy import cal_cluster_ce, cal_flow, fermi_dirac # szhou: how would fermi dirac ever even be used? 
 from uncertainty.uncertainty_measures import p_true as p_true_utils
 from uncertainty.utils import utils
 
@@ -30,7 +31,12 @@ EXP_DETAILS = 'experiment_details.pkl'
 
 
 def main(args):
-    curr_run = "run-20251121_002455-khzh2gjj"
+
+    # Get only the 4 question paraphrases. 
+    # with open('/home/cpsc4710_slz4/project_cpsc4710/cpsc4710_slz4/semantic_uncertainty/data/generated_paraphrases/four_qs_indices.pkl', 'rb') as f:
+    #     four_qs_indices = set(pickle.load(f))
+    
+    curr_run = "run-20251212_214555-vuslog9a"
 
     user = os.environ['USER']
     scratch_dir = os.getenv('SCRATCH_DIR', '.')
@@ -124,6 +130,7 @@ def main(args):
     validation_generations_pickle = restore('validation_generations.pkl')
     with open(validation_generations_pickle.name, 'rb') as infile:
         validation_generations = pickle.load(infile)
+    logging.info(validation_generations)
 
     entropies = defaultdict(list)
     validation_embeddings, validation_is_true, validation_answerable = [], [], []
@@ -135,6 +142,8 @@ def main(args):
 
     # Loop over datapoints and compute validation embeddings and entropies.
     for idx, tid in enumerate(validation_generations):
+        # if idx not in four_qs_indices:
+        #     continue
 
         example = validation_generations[tid]
         question = example['question'] if 'question' in example else example['questions'][-1] # szhou: don't believe this is used anything except for printing and p_true, so should be fine  
@@ -148,6 +157,10 @@ def main(args):
             responses = [fr[0] for fr in full_responses[:args.use_num_generations]]
         else:
             responses = [fr[0] for fr in full_responses]
+
+        # if len(responses) != 9: # szhou: this helps standardize things for semantic energy 
+        #     continue
+        N = len(responses)
 
         if args.recompute_accuracy:
             logging.info('Recomputing accuracy!')
@@ -168,9 +181,13 @@ def main(args):
         if args.compute_predictive_entropy:
             # Token log likelihoods. Shape = (n_sample, n_tokens)
             if not args.use_all_generations:
+                all_logits = [r[2] for r in full_responses[:args.use_num_generations]] # (n_generations, n_tokens_i)
                 log_liks = [r[1] for r in full_responses[:args.use_num_generations]]
             else:
+                all_logits = [r[2] for r in full_responses]
                 log_liks = [r[1] for r in full_responses]
+
+            logging.info(F"LOGITS {all_logits[:5]}")
 
             for i in log_liks:
                 assert i
@@ -203,6 +220,29 @@ def main(args):
             log_likelihood_per_semantic_id = logsumexp_by_id(semantic_ids, log_liks_agg, agg='sum_normalized')
             pe = predictive_entropy_rao(log_likelihood_per_semantic_id)
             entropies['semantic_entropy'].append(pe)
+
+            # szhou: Compute semantic energy
+            # for a single original q, i have the cluster
+            # !!! is this correct?
+
+            # slightly modifying when paraphrasing
+            
+            cluster_list = [list() for _ in range(max(semantic_ids)+1)]
+            for i in range(len(semantic_ids)):
+                cluster_list[semantic_ids[i]].append(i)
+            # cluster_list = [[i] for i in range(len(semantic_ids))]
+            logging.info(f"OUT: {cluster_list}")
+            
+            score_logits_se = cal_flow(all_logits, cluster_list)
+            score_logits_se = [x/N for x in score_logits_se]
+            
+            logging.info(f"SEM ENERGY {score_logits_se}")
+
+            best_cluster_idx = np.argmax(score_logits_se)
+            # best_cluster = clusters[best_cluster_idx]
+            best_score = score_logits_se[best_cluster_idx]
+
+            entropies["semantic_energy"].append(-best_score)
 
             # pylint: disable=invalid-name
             log_str = 'semantic_ids: %s, avg_token_log_likelihoods: %s, entropies: %s'

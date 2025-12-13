@@ -196,7 +196,7 @@ class HuggingfaceModel(BaseModel):
         self.stop_sequences = stop_sequences + [self.tokenizer.eos_token]
         self.token_limit = 4096 if 'Llama-2' in model_name else 2048
 
-    def predict(self, input_data, temperature, return_full=False):
+    def predict(self, input_data, temperature, return_full=False, return_logits=False):
 
         # Implement prediction.
         inputs = self.tokenizer(input_data, return_tensors="pt").to("cuda")
@@ -333,13 +333,19 @@ class HuggingfaceModel(BaseModel):
         last_token_embedding = last_layer[:, -1, :].cpu()
 
         # Get log_likelihoods.
-        # outputs.scores are the logits for the generated token.
+        # outputs.scores are the logits for the generated token. szhou: here it is 
         # outputs.scores is a tuple of len = n_generated_tokens.
         # Each entry is shape (bs, vocabulary size).
         # outputs.sequences is the sequence of all tokens: input and generated.
         transition_scores = self.model.compute_transition_scores(
             outputs.sequences, outputs.scores, normalize_logits=True)
         # Transition_scores[0] only contains the scores for the first generated tokens.
+
+        # szhou: Get the logits of the selected token sequence
+        # assumed that num_batches = 1, num_sequences = 1
+        chosen_logits = [
+            s[0, tok].item() for s, tok in zip(outputs.scores[:n_generated], outputs.sequences[0][n_input_token:n_input_token+n_generated])
+        ]
 
         log_likelihoods = [score.item() for score in transition_scores[0]]
         if len(log_likelihoods) == 1:
@@ -354,6 +360,8 @@ class HuggingfaceModel(BaseModel):
         if len(log_likelihoods) == 0:
             raise ValueError
 
+        if return_logits:
+            return sliced_answer, log_likelihoods, last_token_embedding, chosen_logits
         return sliced_answer, log_likelihoods, last_token_embedding
 
     def get_p_true(self, input_data):

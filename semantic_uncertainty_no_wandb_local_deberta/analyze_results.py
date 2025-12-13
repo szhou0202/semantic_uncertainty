@@ -51,7 +51,7 @@ def analyze_run(
             compatible_bootstrap]
 
     # Load the results dictionary from a pickle file.
-    curr_run = "run-20251121_002455-khzh2gjj"
+    curr_run = "run-20251212_214555-vuslog9a"
     curr_dir = f"cpsc4710_slz4/uncertainty/wandb/{curr_run}/files"
     with open(f'{curr_dir}/{UNC_MEAS}', 'rb') as file:
         results_old = pickle.load(file)
@@ -76,6 +76,8 @@ def analyze_run(
 
     # Next: Uncertainty Measures.
     # Iterate through the dictionary and compute additional metrics for each measure.
+    print(rum.items())
+    # return
     for measure_name, measure_values in rum.items():
         logging.info('Computing for uncertainty measure `%s`.', measure_name)
 

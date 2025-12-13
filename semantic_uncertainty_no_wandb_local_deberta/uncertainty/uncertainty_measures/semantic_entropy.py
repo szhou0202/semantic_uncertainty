@@ -32,7 +32,7 @@ class EntailmentDeberta(BaseEntailment):
         self.tokenizer = AutoTokenizer.from_pretrained(folder_path) 
         self.model = AutoModelForSequenceClassification.from_pretrained(
             folder_path).to(DEVICE)
-        # self.tokenizer = AutoTokenizer.from_pretrained("microsoft/deberta-v2-xlarge-mnli") # szhou: trying to use smaller deberta 
+        # self.tokenizer = AutoTokenizer.from_pretrained("microsoft/deberta-v2-xlarge-mnli") # szhou: trying to use smaller deberta, ran into GPU? download? problems with the big one 
         # self.model = AutoModelForSequenceClassification.from_pretrained(
         #     "microsoft/deberta-v2-xlarge-mnli").to(DEVICE)
 
